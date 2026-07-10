@@ -383,7 +383,7 @@ export const CreateEditTest: React.FC = () => {
                 options={subTopics.map((st) => ({ id: st.id, name: st.name }))}
                 selectedValues={selectedSubTopics || []}
                 onChange={(values) => setValue('sub_topics', values, { shouldValidate: true })}
-                disabled={!selectedTopics || selectedTopics.length === 0 || subTopicsLoading}
+                disabled={!selectedTopics || selectedTopics.length === 0 || subTopicsLoading || topicsLoading}
               />
             </div>
 

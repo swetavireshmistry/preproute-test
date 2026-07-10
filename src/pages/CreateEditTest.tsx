@@ -36,8 +36,10 @@ export const CreateEditTest: React.FC = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [subTopics, setSubTopics] = useState<SubTopic[]>([]);
-  
+
   const [loading, setLoading] = useState(true);
+  const [topicsLoading, setTopicsLoading] = useState(false);
+  const [subTopicsLoading, setSubTopicsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const previousSubjectRef = useRef<string | null>(null);
 
@@ -182,20 +184,25 @@ export const CreateEditTest: React.FC = () => {
     const shouldResetSelections = previousSubject !== null;
     previousSubjectRef.current = selectedSubject;
 
+    if (shouldResetSelections) {
+      setValue('topics', []);
+      setValue('sub_topics', []);
+      setTopics([]);
+      setSubTopics([]);
+    }
+
     const loadTopics = async () => {
+      setTopicsLoading(true);
       try {
         const res = await api.getTopicsBySubject(selectedSubject);
         if (res.success || res.status === 'success') {
           setTopics(res.data);
-          if (shouldResetSelections) {
-            setValue('topics', []);
-            setValue('sub_topics', []);
-            setSubTopics([]);
-          }
         }
       } catch (err) {
         console.error('Error loading topics:', err);
         toast.error('Failed to load topics for subject.');
+      } finally {
+        setTopicsLoading(false);
       }
     };
 
@@ -211,6 +218,7 @@ export const CreateEditTest: React.FC = () => {
     }
 
     const loadSubTopics = async () => {
+      setSubTopicsLoading(true);
       try {
         const res = await api.getSubTopicsByMultiTopics(selectedTopics);
         if (res.success || res.status === 'success') {
@@ -223,6 +231,8 @@ export const CreateEditTest: React.FC = () => {
       } catch (err) {
         console.error('Error loading subtopics:', err);
         toast.error('Failed to load sub-topics.');
+      } finally {
+        setSubTopicsLoading(false);
       }
     };
 
@@ -356,11 +366,11 @@ export const CreateEditTest: React.FC = () => {
             <div>
               <MultiSelect
                 label="Topic"
-                placeholder="Choose from Drop-down"
+                placeholder={topicsLoading ? 'Loading topics...' : 'Choose from Drop-down'}
                 options={topics.map((t) => ({ id: t.id, name: t.name }))}
                 selectedValues={selectedTopics || []}
                 onChange={(values) => setValue('topics', values, { shouldValidate: true })}
-                disabled={!selectedSubject}
+                disabled={!selectedSubject || topicsLoading}
                 error={errors.topics?.message}
               />
             </div>
@@ -369,11 +379,11 @@ export const CreateEditTest: React.FC = () => {
             <div>
               <MultiSelect
                 label="Sub Topic"
-                placeholder="Choose from Drop-down"
+                placeholder={subTopicsLoading ? 'Loading sub-topics...' : 'Choose from Drop-down'}
                 options={subTopics.map((st) => ({ id: st.id, name: st.name }))}
                 selectedValues={selectedSubTopics || []}
                 onChange={(values) => setValue('sub_topics', values, { shouldValidate: true })}
-                disabled={!selectedTopics || selectedTopics.length === 0}
+                disabled={!selectedTopics || selectedTopics.length === 0 || subTopicsLoading}
               />
             </div>
 

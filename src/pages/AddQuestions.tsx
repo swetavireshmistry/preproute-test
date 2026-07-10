@@ -560,25 +560,63 @@ export const AddQuestions: React.FC = () => {
   if (loading) {
     return (
       <MainLayout breadcrumbs={['Test creation']}>
-        <div className="flex flex-col items-center justify-center bg-white py-20">
-          <svg
-            className="mb-4 h-8 w-8 animate-spin text-[#7489FF]"
-            fill="none"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
-          <p className="text-sm font-medium text-[#6B7180]">Loading test details...</p>
+        {/* TestSummaryCard skeleton */}
+        <div className="mb-8 rounded-2xl border border-slate-100 bg-white p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="skeleton h-5 w-48" />
+            <div className="skeleton h-8 w-20 rounded-lg" />
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="skeleton h-3 w-16" />
+                <div className="skeleton h-5 w-24" />
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2 pt-1">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="skeleton h-6 w-20 rounded-full" />
+            ))}
+          </div>
+        </div>
+
+        {/* Question header skeleton */}
+        <div className="w-full space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="skeleton h-5 w-32" />
+            <div className="flex items-center gap-3">
+              <div className="skeleton h-9 w-24 rounded-lg" />
+              <div className="skeleton h-9 w-24 rounded-lg" />
+            </div>
+          </div>
+
+          {/* WYSIWYG editor skeleton */}
+          <div className="skeleton h-40 w-full rounded-xl" />
+
+          {/* Options skeleton */}
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="skeleton h-5 w-5 rounded-full" />
+                <div className="skeleton h-12 flex-1 rounded-lg" />
+              </div>
+            ))}
+          </div>
+
+          {/* Explanation skeleton */}
+          <div className="skeleton h-28 w-full rounded-lg" />
+
+          {/* Navigation skeleton */}
+          <div className="flex items-center justify-between pt-4">
+            <div className="skeleton h-12 w-40 rounded-lg" />
+            <div className="skeleton h-12 w-32 rounded-lg" />
+          </div>
         </div>
       </MainLayout>
     );
   }
+
 
   if (!test) {
     return (

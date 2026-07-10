@@ -147,16 +147,61 @@ export const PreviewPublish: React.FC = () => {
   if (loading) {
     return (
       <MainLayout breadcrumbs={['Test creation']}>
-        <div className="flex flex-col items-center justify-center py-20 bg-white">
-          <svg className="animate-spin h-8 w-8 text-blue-600 mb-4" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          <p className="text-slate-500 text-sm font-medium">Generating test preview layout...</p>
+        <div className="flex min-h-[calc(100vh-12rem)] w-full flex-col space-y-8">
+          {/* Header skeleton */}
+          <div className="flex items-center gap-6">
+            <div className="skeleton h-5 w-28" />
+            <div className="skeleton h-8 w-44 rounded-lg" />
+          </div>
+
+          {/* TestSummaryCard skeleton */}
+          <div className="rounded-2xl border border-slate-100 bg-white p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="skeleton h-5 w-48" />
+              <div className="skeleton h-8 w-20 rounded-lg" />
+            </div>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="skeleton h-3 w-16" />
+                  <div className="skeleton h-5 w-24" />
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2 pt-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="skeleton h-6 w-20 rounded-full" />
+              ))}
+            </div>
+          </div>
+
+          {/* Publish toggle skeleton */}
+          <div className="skeleton h-12 w-72 rounded-lg" />
+
+          {/* Live Until skeleton */}
+          <div className="space-y-4">
+            <div className="skeleton h-5 w-24" />
+            <div className="skeleton h-4 w-80" />
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 pt-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="skeleton h-5 w-5 rounded-full" />
+                  <div className="skeleton h-4 w-36" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Action buttons skeleton */}
+          <div className="mt-auto flex w-full items-center justify-end gap-3.5 border-t border-slate-100 pt-6">
+            <div className="skeleton h-12 w-40 rounded-lg" />
+            <div className="skeleton h-12 w-40 rounded-lg" />
+          </div>
         </div>
       </MainLayout>
     );
   }
+
 
   if (!test) {
     return (

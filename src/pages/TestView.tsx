@@ -156,16 +156,74 @@ export const TestView: React.FC = () => {
   if (loading) {
     return (
       <MainLayout breadcrumbs={['Dashboard', 'View Test']}>
-        <div className="flex flex-col items-center justify-center py-20 bg-white">
-          <svg className="animate-spin h-8 w-8 text-[#7489FF] mb-4" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          <p className="text-slate-500 text-sm font-medium">Loading test viewer...</p>
+        <div className="flex min-h-[calc(100vh-12rem)] w-full flex-col space-y-8 pb-12">
+          {/* Header skeleton */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5">
+            <div className="flex items-center gap-3">
+              <div className="skeleton h-9 w-9 rounded-xl" />
+              <div className="space-y-2">
+                <div className="skeleton h-6 w-56" />
+                <div className="skeleton h-3 w-40" />
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="skeleton h-10 w-28 rounded-lg" />
+              <div className="skeleton h-10 w-36 rounded-lg" />
+            </div>
+          </div>
+
+          {/* Meta stat cards skeleton */}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white p-5 text-center space-y-3">
+                <div className="skeleton h-10 w-10 rounded-xl" />
+                <div className="skeleton h-3 w-16" />
+                <div className="skeleton h-4 w-20" />
+              </div>
+            ))}
+          </div>
+
+          {/* Topics skeleton */}
+          <div className="rounded-2xl border border-slate-100 bg-white p-6 space-y-4">
+            <div className="skeleton h-3 w-16 mb-2" />
+            <div className="flex flex-wrap gap-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="skeleton h-6 w-24 rounded-full" />
+              ))}
+            </div>
+            <div className="skeleton h-3 w-20 mb-2" />
+            <div className="flex flex-wrap gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="skeleton h-6 w-20 rounded-full" />
+              ))}
+            </div>
+          </div>
+
+          {/* Question cards skeleton */}
+          <div className="space-y-6">
+            <div className="skeleton h-5 w-32" />
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-slate-100 bg-white p-6 space-y-5">
+                <div className="flex items-center justify-between pb-3.5 border-b border-slate-50">
+                  <div className="skeleton h-4 w-24" />
+                  <div className="skeleton h-6 w-16 rounded-full" />
+                </div>
+                <div className="skeleton h-5 w-full" />
+                <div className="skeleton h-4 w-3/4" />
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {Array.from({ length: 4 }).map((_, j) => (
+                    <div key={j} className="skeleton h-12 w-full rounded-xl" />
+                  ))}
+                </div>
+                <div className="skeleton h-16 w-full rounded-xl" />
+              </div>
+            ))}
+          </div>
         </div>
       </MainLayout>
     );
   }
+
 
   if (!test) {
     return (

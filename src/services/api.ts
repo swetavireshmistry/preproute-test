@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Subject, Topic, SubTopic, Test, Question, LoginResponse, GeneralResponse } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://admin-moderator-backend-staging.up.railway.app/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -98,16 +98,16 @@ export const api = {
     return response.data;
   },
 
-async fetchBulkQuestions(questionIds: string[]): Promise<GeneralResponse<Question[]>> {
-  const response = await apiClient.post('/questions/fetchBulk', {
-    question_ids: questionIds,
-  });
+  async fetchBulkQuestions(questionIds: string[]): Promise<GeneralResponse<Question[]>> {
+    const response = await apiClient.post('/questions/fetchBulk', {
+      question_ids: questionIds,
+    });
 
-  return {
-    ...response.data,
-    data: [...response.data.data].reverse(),
-  };
-},
+    return {
+      ...response.data,
+      data: [...response.data.data].reverse(),
+    };
+  },
   async publishTest(id: string): Promise<GeneralResponse<Test>> {
     const response = await apiClient.put(`/tests/${id}`, { status: 'live' });
     return response.data;

@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
+  --color-brand: #5988EF;
+  --color-brand-hover: #4876d6;
+  --color-brand-light: #eff6ff;
+  --color-blue-500: #7ca3f7;
+  --color-blue-600: #5988EF;
+  --color-blue-700: #4876d6;
+  --color-blue-750: #3c66bc;
+  --color-blue-755: #3c66bc;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  min-height: 100vh;
+}
+
+/* Custom scrollbars for a premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Form Input Label Colors */
+label.block {
+  color: #374151 !important;
+}
+
+/* Global Placeholder Typography */
+input::placeholder,
+textarea::placeholder {
+  color: #D1D5DB !important;
+  opacity: 1 !important;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0;
+}
+
+.placeholder-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0;
+  color: #D1D5DB;
+}
+
+/* Difficulty level radio buttons */
+.difficulty-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #7489FF;
+  border-radius: 50%;
+  background-color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.difficulty-radio:checked {
+  border-color: #7489FF;
+  background-color: #fff;
+  background-image: radial-gradient(circle, #7489FF 0, #7489FF 6px, #fff 6px, #fff 100%);
+}
+
+.difficulty-radio:focus {
+  outline: none;
+}
+
+/* WYSIWYG editor content */
+.wysiwyg-editor ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+.wysiwyg-editor ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+
+.wysiwyg-editor table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.wysiwyg-editor td,
+.wysiwyg-editor th {
+  border: 1px solid #e5e7eb;
+  padding: 0.25rem 0.5rem;
+}

@@ -678,7 +678,7 @@ export const AddQuestions: React.FC = () => {
         <div className="flex items-center justify-between">
           <h3 className="text-base font-medium leading-[150%] tracking-normal text-[#07013C]">
             Question {currentIdx + 1}
-            <span className="font-medium text-[#97BCF0]">/{test.total_questions || 50}</span>
+            <span className="font-medium text-[#97BCF0]">/{questionsList.length}</span>
           </h3>
 
           <div className="flex items-center gap-3">

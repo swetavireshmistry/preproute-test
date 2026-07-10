@@ -82,8 +82,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, breadcrumbs = 
     {
       name: 'Test Tracking',
       icon: ClipboardSearch,
-      path: '#',
-      active: false,
+      path: '/test-tracking',
+      active: location.pathname === '/test-tracking',
     },
   ];
 

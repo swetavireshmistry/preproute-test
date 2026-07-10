@@ -220,10 +220,23 @@ export const AddQuestions: React.FC = () => {
   };
 
   const downloadSampleCSV = () => {
-    const csvContent =
-      'Question,Option A,Option B,Option C,Option D,Correct Answer,Explanation,Difficulty,Topic,Sub-topic\n' +
-      '"What is 2 + 2?","3","4","5","6","Option B","Simple math addition","easy","",""\n' +
-      '"Which planet is closest to the Sun?","Venus","Mars","Mercury","Jupiter","Option C","Mercury is closest.","easy","",""';
+    const rows = [
+      ['Question', 'Option A', 'Option B', 'Option C', 'Option D', 'Correct Answer', 'Explanation', 'Difficulty', 'Topic', 'Sub-topic'],
+      ['What is 2 + 2?', '3', '4', '5', '6', 'Option B', 'Basic arithmetic: 2 added to 2 equals 4.', 'easy', 'Arithmetic', 'Addition'],
+      ['Which planet is closest to the Sun?', 'Venus', 'Mars', 'Mercury', 'Jupiter', 'Option C', 'Mercury is the innermost planet in the Solar System.', 'easy', 'Solar System', 'Planets'],
+      ['What is the chemical formula of water?', 'CO2', 'H2O2', 'H2O', 'NaCl', 'Option C', 'Water is composed of 2 hydrogen atoms and 1 oxygen atom.', 'easy', 'Chemistry', 'Chemical Formulas'],
+      ['Who wrote the play "Romeo and Juliet"?', 'Charles Dickens', 'William Shakespeare', 'Jane Austen', 'Mark Twain', 'Option B', 'Romeo and Juliet is a tragedy written by William Shakespeare around 1594–1596.', 'easy', 'Literature', 'English Drama'],
+      ['What is the powerhouse of the cell?', 'Nucleus', 'Ribosome', 'Golgi Apparatus', 'Mitochondria', 'Option D', 'Mitochondria produce ATP through cellular respiration, earning the title powerhouse of the cell.', 'easy', 'Biology', 'Cell Biology'],
+      ['Which gas is most abundant in Earth\'s atmosphere?', 'Oxygen', 'Carbon Dioxide', 'Nitrogen', 'Argon', 'Option C', 'Nitrogen makes up approximately 78% of Earth\'s atmosphere.', 'medium', 'Environment', 'Atmosphere'],
+      ['If a train travels 300 km in 3 hours, what is its average speed?', '90 km/h', '100 km/h', '120 km/h', '150 km/h', 'Option B', 'Speed = Distance / Time = 300 / 3 = 100 km/h.', 'medium', 'Arithmetic', 'Speed and Distance'],
+      ['What is the value of Pi (π) up to two decimal places?', '3.12', '3.41', '3.14', '3.16', 'Option C', 'Pi is an irrational number approximately equal to 3.14159...', 'medium', 'Mathematics', 'Geometry'],
+      ['In which year did World War II end?', '1940', '1943', '1945', '1947', 'Option C', 'World War II ended in 1945 with the surrender of Germany in May and Japan in September.', 'medium', 'History', 'World War II'],
+      ['What is the derivative of sin(x)?', '-cos(x)', 'cos(x)', 'tan(x)', '-sin(x)', 'Option B', 'The derivative of sin(x) with respect to x is cos(x), a fundamental result in calculus.', 'hard', 'Mathematics', 'Calculus'],
+    ];
+
+    const csvContent = rows
+      .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(','))
+      .join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -233,7 +246,9 @@ export const AddQuestions: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
+
 
   const handleAddMCQ = () => {
     saveActiveQuestionToState();

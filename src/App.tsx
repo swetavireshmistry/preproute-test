@@ -10,6 +10,8 @@ import { AddQuestions } from './pages/AddQuestions';
 import { PreviewPublish } from './pages/PreviewPublish';
 import { TestView } from './pages/TestView';
 
+import { TestTracking } from './pages/TestTracking';
+
 function App() {
   const { initialize } = useAuthStore();
 
@@ -90,6 +92,16 @@ function App() {
           element={
             <ProtectedRoute>
               <TestView />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected Test Tracking */}
+        <Route
+          path="/test-tracking"
+          element={
+            <ProtectedRoute>
+              <TestTracking />
             </ProtectedRoute>
           }
         />

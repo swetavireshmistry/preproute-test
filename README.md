@@ -41,7 +41,7 @@ Before running the application, make sure to configure the environment variables
    ```
 2. Open `.env` and set the backend API base URL:
    ```env
-   VITE_API_BASE_URL=https://admin-moderator-backend-staging.up.railway.app/api
+   VITE_API_BASE_URL=
    ```
 
 *Note: `.env` is ignored by Git, ensuring local configuration options remain secure. `.env.example` is tracked for reference.*

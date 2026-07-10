@@ -98,11 +98,16 @@ export const api = {
     return response.data;
   },
 
-  async fetchBulkQuestions(questionIds: string[]): Promise<GeneralResponse<Question[]>> {
-    const response = await apiClient.post('/questions/fetchBulk', { question_ids: questionIds });
-    return response.data;
-  },
+async fetchBulkQuestions(questionIds: string[]): Promise<GeneralResponse<Question[]>> {
+  const response = await apiClient.post('/questions/fetchBulk', {
+    question_ids: questionIds,
+  });
 
+  return {
+    ...response.data,
+    data: [...response.data.data].reverse(),
+  };
+},
   async publishTest(id: string): Promise<GeneralResponse<Test>> {
     const response = await apiClient.put(`/tests/${id}`, { status: 'live' });
     return response.data;

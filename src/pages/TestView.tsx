@@ -91,7 +91,12 @@ export const TestView: React.FC = () => {
           if (testData.questions && testData.questions.length > 0) {
             const questionsRes = await api.fetchBulkQuestions(testData.questions);
             if (isApiSuccess(questionsRes)) {
-              setQuestions(questionsRes.data);
+              const sortedQuestions = [...questionsRes.data].sort((a, b) => {
+                const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+                const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+                return dateB - dateA;
+              });
+              setQuestions(sortedQuestions);
             }
           }
         }

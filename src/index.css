@@ -108,3 +108,15 @@ textarea::placeholder {
   border: 1px solid #e5e7eb;
   padding: 0.25rem 0.5rem;
 }
+
+/* WYSIWYG editor and content images */
+.wysiwyg-editor img,
+.wysiwyg-content img {
+  max-width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  display: block;
+}
+

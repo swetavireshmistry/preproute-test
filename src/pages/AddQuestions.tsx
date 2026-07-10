@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  FileUp,
   ChevronsRight,
   CheckCircle2,
   MinusCircle,
@@ -35,7 +36,6 @@ import {
   FIELD_CLASS,
   SETTINGS_LABEL_CLASS,
   OPTION_INPUT_CLASS,
-  HEADER_ACTION_BUTTON_CLASS,
   HEADER_ACTION_BUTTON_STYLE,
   PRIMARY_BUTTON_STYLE,
   EXIT_BUTTON_STYLE,
@@ -55,6 +55,201 @@ export const AddQuestions: React.FC = () => {
   const [questionsList, setQuestionsList] = useState<(Question | null)[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const csvInputRef = useRef<HTMLInputElement>(null);
+
+  const parseCSV = (text: string): string[][] => {
+    const lines: string[][] = [];
+    let row: string[] = [];
+    let inQuotes = false;
+    let currentVal = '';
+
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const nextChar = text[i + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          currentVal += '"';
+          i++; // skip next quote
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        row.push(currentVal.trim());
+        currentVal = '';
+      } else if ((char === '\r' || char === '\n') && !inQuotes) {
+        if (char === '\r' && nextChar === '\n') i++; // skip \n
+        row.push(currentVal.trim());
+        lines.push(row);
+        row = [];
+        currentVal = '';
+      } else {
+        currentVal += char;
+      }
+    }
+    if (currentVal || row.length > 0) {
+      row.push(currentVal.trim());
+      lines.push(row);
+    }
+    return lines;
+  };
+
+  const mapCSVToQuestions = (
+    lines: string[][],
+    testId: string,
+    subject: string,
+    topicsList: Topic[],
+    subTopicsList: SubTopic[]
+  ): Question[] => {
+    if (lines.length < 2) return [];
+    const headers = lines[0].map((h) => h.toLowerCase().trim());
+
+    const questionIdx = headers.findIndex((h) => h.includes('question'));
+    const opt1Idx = headers.findIndex((h) => h.includes('option1') || h === 'option a' || h === 'a');
+    const opt2Idx = headers.findIndex((h) => h.includes('option2') || h === 'option b' || h === 'b');
+    const opt3Idx = headers.findIndex((h) => h.includes('option3') || h === 'option c' || h === 'c');
+    const opt4Idx = headers.findIndex((h) => h.includes('option4') || h === 'option d' || h === 'd');
+    const correctIdx = headers.findIndex((h) => h.includes('correct') || h === 'answer');
+    const expIdx = headers.findIndex((h) => h.includes('explanation') || h === 'solution');
+    const diffIdx = headers.findIndex((h) => h === 'difficulty');
+    const topicIdx = headers.findIndex((h) => h === 'topic');
+    const subTopicIdx = headers.findIndex((h) => h.includes('sub_topic') || h.includes('subtopic'));
+
+    const result: Question[] = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const row = lines[i];
+      if (row.length === 0 || (row.length === 1 && row[0] === '')) continue;
+
+      const questionText = row[questionIdx] || '';
+      const option1 = row[opt1Idx] || '';
+      const option2 = row[opt2Idx] || '';
+      const option3 = row[opt3Idx] || '';
+      const option4 = row[opt4Idx] || '';
+
+      const correctRaw = (row[correctIdx] || '').toLowerCase().trim();
+      let correct_option: 'option1' | 'option2' | 'option3' | 'option4' = 'option1';
+      if (correctRaw === 'option2' || correctRaw === 'option_2' || correctRaw === 'b' || correctRaw === '2') {
+        correct_option = 'option2';
+      } else if (correctRaw === 'option3' || correctRaw === 'option_3' || correctRaw === 'c' || correctRaw === '3') {
+        correct_option = 'option3';
+      } else if (correctRaw === 'option4' || correctRaw === 'option_4' || correctRaw === 'd' || correctRaw === '4') {
+        correct_option = 'option4';
+      }
+
+      const explanation = row[expIdx] || '';
+
+      let difficulty: 'easy' | 'medium' | 'hard' = 'medium';
+      const diffRaw = (row[diffIdx] || '').toLowerCase().trim();
+      if (diffRaw === 'easy') difficulty = 'easy';
+      else if (diffRaw === 'hard' || diffRaw === 'difficult') difficulty = 'hard';
+
+      const topicName = row[topicIdx] || '';
+      const subTopicName = row[subTopicIdx] || '';
+
+      const matchedTopic = topicsList.find((t) => t.name.toLowerCase() === topicName.toLowerCase());
+      const matchedSubTopic = subTopicsList.find((st) => st.name.toLowerCase() === subTopicName.toLowerCase());
+
+      result.push({
+        type: 'mcq',
+        question: questionText,
+        option1,
+        option2,
+        option3,
+        option4,
+        correct_option,
+        explanation,
+        difficulty,
+        test_id: testId,
+        subject,
+        topic: matchedTopic?.name || topicName || undefined,
+        sub_topic: matchedSubTopic?.name || subTopicName || undefined,
+        topic_id: matchedTopic?.id || undefined,
+        sub_topic_id: matchedSubTopic?.id || undefined,
+      });
+    }
+
+    return result;
+  };
+
+  const handleCSVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      try {
+        const lines = parseCSV(text);
+        if (lines.length < 2) {
+          toast.error('Invalid CSV format. Please make sure the CSV has headers and content.');
+          return;
+        }
+
+        const parsed = mapCSVToQuestions(lines, id || '', test?.subject || '', availableTopics, availableSubTopics);
+        if (parsed.length === 0) {
+          toast.error('No questions found in the CSV.');
+          return;
+        }
+
+        setQuestionsList((prev) => {
+          const updated = [...prev];
+          for (let i = 0; i < parsed.length; i++) {
+            if (i < updated.length) {
+              updated[i] = parsed[i];
+            } else {
+              updated.push(parsed[i]);
+            }
+          }
+          return updated;
+        });
+
+        if (parsed.length > currentIdx) {
+          reset(questionToFormValues(parsed[currentIdx], availableTopics, availableSubTopics));
+        }
+
+        toast.success(`Successfully imported ${parsed.length} questions from CSV!`);
+      } catch (err) {
+        console.error('Error parsing CSV:', err);
+        toast.error('Failed to parse CSV file.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const downloadSampleCSV = () => {
+    const csvContent =
+      'Question,Option A,Option B,Option C,Option D,Correct Answer,Explanation,Difficulty,Topic,Sub-topic\n' +
+      '"What is 2 + 2?","3","4","5","6","Option B","Simple math addition","easy","",""\n' +
+      '"Which planet is closest to the Sun?","Venus","Mars","Mercury","Jupiter","Option C","Mercury is closest.","easy","",""';
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'preproute_questions_template.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleAddMCQ = () => {
+    saveActiveQuestionToState();
+    
+    // Add a new empty question slot
+    setQuestionsList((prev) => [...prev, null]);
+    
+    // Navigate to the newly added slot
+    const newIdx = questionsList.length;
+    setCurrentIdx(newIdx);
+    
+    // Reset form to empty values
+    reset(EMPTY_FORM_VALUES);
+    
+    toast.success('Added new MCQ question slot!');
+  };
 
   const {
     register,
@@ -449,16 +644,60 @@ export const AddQuestions: React.FC = () => {
           </h3>
 
           <div className="flex items-center gap-3">
-            <button type="button" className={HEADER_ACTION_BUTTON_CLASS} style={HEADER_ACTION_BUTTON_STYLE}>
-              <Plus className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+            <button
+              type="button"
+              onClick={downloadSampleCSV}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[#384EC7] hover:underline cursor-pointer select-none"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Template
+            </button>
+            <button
+              type="button"
+              onClick={handleAddMCQ}
+              className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-[8px] border border-indigo-200 bg-indigo-50 px-3 text-xs font-bold leading-[150%] tracking-normal text-[#384EC7] transition-colors hover:bg-indigo-100 hover:text-indigo-800"
+              style={HEADER_ACTION_BUTTON_STYLE}
+            >
+              <Plus className="h-4 w-4 shrink-0" strokeWidth={2} />
               MCQ
             </button>
-            <button type="button" className={HEADER_ACTION_BUTTON_CLASS} style={HEADER_ACTION_BUTTON_STYLE}>
-              <Download className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+            <button
+              type="button"
+              onClick={() => csvInputRef.current?.click()}
+              className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-[8px] border border-blue-200 bg-blue-50 px-3 text-xs font-bold leading-[150%] tracking-normal text-blue-700 transition-colors hover:bg-blue-100 hover:text-blue-800"
+              style={HEADER_ACTION_BUTTON_STYLE}
+            >
+              <FileUp className="h-4 w-4 shrink-0" strokeWidth={2} />
               CSV
             </button>
+            <input
+              type="file"
+              accept=".csv"
+              ref={csvInputRef}
+              onChange={handleCSVUpload}
+              className="hidden"
+            />
           </div>
         </div>
+
+        {/* CSV Import Tip Banner */}
+        {questionsList.every((q) => !q) && (
+          <div className="rounded-xl border border-[#7489FF]/20 bg-[#F8FAFF] p-4 text-xs font-semibold text-[#384EC7] flex items-center gap-2 select-none shadow-xs">
+            <Download className="h-4 w-4 text-[#7489FF] shrink-0" />
+            <span>
+              Quick Tip: Save time by importing questions in bulk! Download our{' '}
+              <button
+                onClick={downloadSampleCSV}
+                type="button"
+                className="text-[#7489FF] underline font-bold cursor-pointer hover:text-blue-700"
+              >
+                CSV Template
+              </button>
+              , fill in your questions, and click the **CSV** button in the top-right to upload.
+            </span>
+          </div>
+        )}
+
 
         <button
           type="button"
@@ -485,6 +724,8 @@ export const AddQuestions: React.FC = () => {
           {errors.question && (
             <p className="text-xs font-medium text-red-500">{errors.question.message}</p>
           )}
+
+
 
           <div className="space-y-4">
             <label className="block text-base font-medium leading-[150%] tracking-normal text-[#000000]">

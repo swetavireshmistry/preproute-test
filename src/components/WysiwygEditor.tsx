@@ -42,7 +42,7 @@ type SpecialToolbarAction = 'link' | 'highlight' | 'table' | 'equation' | 'funct
 interface MainToolbarConfig {
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   label: string;
-  behavior: 'command' | 'link' | 'highlight';
+  behavior: 'command' | 'link' | 'highlight' | 'image';
   command?: ToolbarCommand;
 }
 
@@ -63,6 +63,7 @@ const MAIN_TOOLBAR_CONFIG: MainToolbarConfig[] = [
   { icon: Bold, label: 'Bold', behavior: 'command', command: 'bold' },
   { icon: Underline, label: 'Underline', behavior: 'command', command: 'underline' },
   { icon: Strikethrough, label: 'Strikethrough', behavior: 'command', command: 'strikeThrough' },
+  { icon: Image, label: 'Image Upload', behavior: 'image' },
   { icon: Link2, label: 'Link', behavior: 'link', command: 'createLink' },
   { icon: Square, label: 'Highlight', behavior: 'highlight' },
   { icon: AlignLeft, label: 'Align left', behavior: 'command', command: 'justifyLeft' },
@@ -86,6 +87,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
   minHeight = 140,
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeStates, setActiveStates] = useState<Partial<Record<ToolbarCommand, boolean>>>({});
 
   const updateActiveStates = useCallback(() => {
@@ -152,15 +154,29 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
     }
   }, [runCommand]);
 
-  const handleImage = useCallback(() => {
-    const url = window.prompt('Enter image URL');
-    if (url) {
-      runCommand('insertImage', url);
+  const handleImageUploadClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string;
+        runCommand('insertImage', base64);
+      };
+      reader.readAsDataURL(file);
     }
+    e.target.value = '';
   }, [runCommand]);
 
   const handleMainToolbarClick = useCallback(
     (item: MainToolbarConfig) => {
+      if (item.behavior === 'image') {
+        handleImageUploadClick();
+        return;
+      }
       if (item.behavior === 'highlight') {
         runCommand('hiliteColor', '#E5E7EB');
         return;
@@ -173,7 +189,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
         runCommand(item.command);
       }
     },
-    [handleLink, runCommand]
+    [handleLink, runCommand, handleImageUploadClick]
   );
 
   const handleSpecialToolbarClick = useCallback(
@@ -183,7 +199,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
           handleLink();
           break;
         case 'image':
-          handleImage();
+          handleImageUploadClick();
           break;
         case 'highlight':
           runCommand('hiliteColor', '#E5E7EB');
@@ -199,7 +215,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
           break;
       }
     },
-    [handleImage, handleLink, runCommand]
+    [handleLink, runCommand, handleImageUploadClick]
   );
 
   const isEmpty = !value || value === '<br>' || stripHtml(value).length === 0;
@@ -275,6 +291,14 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({
           <Trash2 className="h-4 w-4" strokeWidth={1.5} />
         </button>
       </div>
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
     </div>
   );
 };
